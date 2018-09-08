@@ -3,6 +3,7 @@ var request = require('request');
 var {Storage} = require('@google-cloud/storage');
 var {Speech} = require('@google-cloud/speech');
 var multer = require('multer');
+var fs = require('fs');
 
 var mongoose = require('mongoose');
 var db_url = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017";
