@@ -36,10 +36,10 @@ app.post('/transcribe', type, function (req, res) {
 
     ffmpeg(`./${req.file.filename}`)
     .inputFormat('ogg')
+    .output('output.raw')
     .audioBitrate(48000)
     .format('s16le')
     .audioCodec('pcm_s16le')
-    .output('output.raw')
     .on('end', () => {
         const gcsUri = `gs://${bucketName}/output.raw`;
         const encoding = 'LINEAR16';
