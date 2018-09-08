@@ -28,6 +28,8 @@ app.post('/transcribe', type, function (req, res) {
         keyFilename: __dirname + '/config/scribr-215805-da49aa87d062.json'
     });
 
+    fs.writeFileSync(__dirname + '/audio.opus', req.file.buffer);
+
     storage
         .bucket(bucketName)
         .upload(__dirname + '/audio.opus')
@@ -44,9 +46,11 @@ app.post('/transcribe', type, function (req, res) {
                     console.info(`removed`);
                 }
             });
+            res.send('');
         })
         .catch(err => {
             console.error('ERROR:', err);
+            res.send('');
         });
 });
 
