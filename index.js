@@ -25,6 +25,7 @@ var type = upload.single('audio');
 var bucketName = 'scribr-215805.appspot.com';
 
 app.post('/transcribe', type, function (req, res) {
+    console.log(req);
     var storage = new Storage({
         keyFilename: __dirname + '/config/scribr-215805-da49aa87d062.json'
     });
