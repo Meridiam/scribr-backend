@@ -4,6 +4,7 @@ var {Storage} = require('@google-cloud/storage');
 var speech = require('@google-cloud/speech');
 var multer = require('multer');
 var fs = require('fs');
+var ffmpeg = require('fluent-ffmpeg');
 
 var mongoose = require('mongoose');
 var db_url = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017";
@@ -33,9 +34,16 @@ app.post('/transcribe', type, function (req, res) {
         keyFilename: __dirname + '/config/Scribr-5d71f1093107.json'
     })
 
-    const gcsUri = `gs://${bucketName}/${req.file.filename}`;
-    const encoding = 'OGG_OPUS';
-    const sampleRateHertz = 48000;
+    ffmpeg(`./${req.file.filename}`)
+    .inputFormat('opus')
+    .audioBitrate(16000)
+    .format('s16le')
+    .audioCodec('pcm_s16le')
+    .output('output.raw');
+
+    const gcsUri = `gs://${bucketName}/output.raw`;
+    const encoding = 'LINEAR16';
+    const sampleRateHertz = 16000;
     const languageCode = 'en-US';
 
     const config = {
@@ -59,10 +67,22 @@ app.post('/transcribe', type, function (req, res) {
 
     storage
         .bucket(bucketName)
-        .upload(`./${req.file.filename}`)
+        .upload(`./output.raw`)
         .then(() => {
-            console.log(`audio.opus uploaded to ${bucketName}.`);
+            console.log(`output.raw uploaded to ${bucketName}.`);
             fs.unlink(`./${req.file.filename}`, function(err) {
+                if(err && err.code == 'ENOENT') {
+                    // file doens't exist
+                    console.info("File doesn't exist, won't remove it.");
+                } else if (err) {
+                    // other errors, e.g. maybe we don't have enough permission
+                    console.error("Error occurred while trying to remove file");
+                } else {
+                    console.info(`removed`);
+                }
+            });
+
+            fs.unlink(`./output.raw`, function(err) {
                 if(err && err.code == 'ENOENT') {
                     // file doens't exist
                     console.info("File doesn't exist, won't remove it.");
