@@ -21,7 +21,7 @@ app.use(cors({credentials: true, origin: true}));
 app.use(bodyParser.json());
 
 var upload = multer({dest: __dirname + '/'});
-var type = upload.single('audio');
+var type = upload.single('audio.opus');
 var bucketName = 'scribr-215805.appspot.com';
 
 app.post('/transcribe', type, function (req, res) {
