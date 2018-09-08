@@ -39,7 +39,7 @@ app.post('/transcribe', type, function (req, res) {
     .audioBitrate(16000)
     .format('s16le')
     .audioCodec('pcm_s16le')
-    .output('output.raw');
+    .output('output.raw')
 
     const gcsUri = `gs://${bucketName}/output.raw`;
     const encoding = 'LINEAR16';
