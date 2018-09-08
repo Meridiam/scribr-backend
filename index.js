@@ -35,7 +35,7 @@ app.post('/transcribe', type, function (req, res) {
 
     const gcsUri = `gs://${bucketName}/${req.file.filename}`;
     const encoding = 'OGG_OPUS';
-    const sampleRateHertz = 24000;
+    const sampleRateHertz = 48000;
     const languageCode = 'en-US';
 
     const config = {
