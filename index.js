@@ -40,83 +40,85 @@ app.post('/transcribe', type, function (req, res) {
     .format('s16le')
     .audioCodec('pcm_s16le')
     .output('output.raw')
-
-    const gcsUri = `gs://${bucketName}/output.raw`;
-    const encoding = 'LINEAR16';
-    const sampleRateHertz = 16000;
-    const languageCode = 'en-US';
-
-    const config = {
-        encoding: encoding,
-        sampleRateHertz: sampleRateHertz,
-        languageCode: languageCode,
-    };
-  
-    const audio = {
-        uri: gcsUri,
-    };
-  
-    const request = {
-        config: config,
-        audio: audio,
-    };
-
-    console.log(req.file);
-
-    //fs.writeFileSync('audio.opus', req.file);
-
-    storage
-        .bucket(bucketName)
-        .upload(`./output.raw`)
-        .then(() => {
-            console.log(`output.raw uploaded to ${bucketName}.`);
-            fs.unlink(`./${req.file.filename}`, function(err) {
-                if(err && err.code == 'ENOENT') {
-                    // file doens't exist
-                    console.info("File doesn't exist, won't remove it.");
-                } else if (err) {
-                    // other errors, e.g. maybe we don't have enough permission
-                    console.error("Error occurred while trying to remove file");
-                } else {
-                    console.info(`removed`);
-                }
-            });
-
-            fs.unlink(`./output.raw`, function(err) {
-                if(err && err.code == 'ENOENT') {
-                    // file doens't exist
-                    console.info("File doesn't exist, won't remove it.");
-                } else if (err) {
-                    // other errors, e.g. maybe we don't have enough permission
-                    console.error("Error occurred while trying to remove file");
-                } else {
-                    console.info(`removed`);
-                }
-            });
-
-            scribeClient
-                .longRunningRecognize(request)
-                .then(data => {
-                    const operation = data[0];
-                    // Get a Promise representation of the final result of the job
-                    return operation.promise();
-                })
-                .then(data => {
-                    const response = data[0];
-                    const transcription = response.results
-                        .map(result => console.log(result.alternatives[0].transcript))
-                    console.log(`Transcription: ${transcription}`);
-                })
-                .catch(err => {
-                    console.error('ERROR:', err);
+    .on('end', () => {
+        const gcsUri = `gs://${bucketName}/output.raw`;
+        const encoding = 'LINEAR16';
+        const sampleRateHertz = 16000;
+        const languageCode = 'en-US';
+    
+        const config = {
+            encoding: encoding,
+            sampleRateHertz: sampleRateHertz,
+            languageCode: languageCode,
+        };
+      
+        const audio = {
+            uri: gcsUri,
+        };
+      
+        const request = {
+            config: config,
+            audio: audio,
+        };
+    
+        console.log(req.file);
+    
+        //fs.writeFileSync('audio.opus', req.file);
+    
+        storage
+            .bucket(bucketName)
+            .upload(`./output.raw`)
+            .then(() => {
+                console.log(`output.raw uploaded to ${bucketName}.`);
+                fs.unlink(`./${req.file.filename}`, function(err) {
+                    if(err && err.code == 'ENOENT') {
+                        // file doens't exist
+                        console.info("File doesn't exist, won't remove it.");
+                    } else if (err) {
+                        // other errors, e.g. maybe we don't have enough permission
+                        console.error("Error occurred while trying to remove file");
+                    } else {
+                        console.info(`removed`);
+                    }
                 });
-
-            res.send('');
-        })
-        .catch(err => {
-            console.error('ERROR:', err);
-            res.send('');
-        });
+    
+                fs.unlink(`./output.raw`, function(err) {
+                    if(err && err.code == 'ENOENT') {
+                        // file doens't exist
+                        console.info("File doesn't exist, won't remove it.");
+                    } else if (err) {
+                        // other errors, e.g. maybe we don't have enough permission
+                        console.error("Error occurred while trying to remove file");
+                    } else {
+                        console.info(`removed`);
+                    }
+                });
+    
+                scribeClient
+                    .longRunningRecognize(request)
+                    .then(data => {
+                        const operation = data[0];
+                        // Get a Promise representation of the final result of the job
+                        return operation.promise();
+                    })
+                    .then(data => {
+                        const response = data[0];
+                        const transcription = response.results
+                            .map(result => console.log(result.alternatives[0].transcript))
+                        console.log(`Transcription: ${transcription}`);
+                    })
+                    .catch(err => {
+                        console.error('ERROR:', err);
+                    });
+    
+                res.send('');
+            })
+            .catch(err => {
+                console.error('ERROR:', err);
+                res.send('');
+            });
+    })
+    .run();
 });
 
 app.get('/updateroster', function (req, res) {
