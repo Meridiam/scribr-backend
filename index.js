@@ -33,7 +33,7 @@ app.post('/transcribe', type, function (req, res) {
         keyFilename: __dirname + '/config/Scribr-5d71f1093107.json'
     })
 
-    const gcsUri = `gs://${bucketName}/audio.opus`;
+    const gcsUri = `gs://${bucketName}/${req.file.fliename}`;
     const encoding = 'OGG_OPUS';
     const sampleRateHertz = 16000;
     const languageCode = 'en-US';
