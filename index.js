@@ -1,7 +1,7 @@
 var express = require('express');
 var request = require('request');
 var {Storage} = require('@google-cloud/storage');
-var {speech} = require('@google-cloud/speech');
+var speech = require('@google-cloud/speech');
 var multer = require('multer');
 var fs = require('fs');
 
