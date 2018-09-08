@@ -29,7 +29,7 @@ app.post('/transcribe', function (req, res) {
         keyFilename: __dirname + '/config/scribr-215805-da49aa87d062.json'
     });
 
-    // console.log(req.files);
+    console.log(req.files);
 
     //fs.writeFileSync('audio.opus', req.file);
 
