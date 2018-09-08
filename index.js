@@ -21,7 +21,7 @@ app.use(cors({credentials: true, origin: true}));
 app.use(bodyParser.json());
 
 var upload = multer({dest: __dirname + '/'});
-var type = upload.single('audio');
+var type = upload.any();
 var bucketName = 'scribr-215805.appspot.com';
 
 app.post('/transcribe', type, function (req, res) {
@@ -29,7 +29,7 @@ app.post('/transcribe', type, function (req, res) {
         keyFilename: __dirname + '/config/scribr-215805-da49aa87d062.json'
     });
 
-    console.log(req.file);
+    console.log(req.files);
 
     //fs.writeFileSync('audio.opus', req.file);
 
