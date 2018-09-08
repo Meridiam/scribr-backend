@@ -1,7 +1,7 @@
 var express = require('express');
 var request = require('request');
 var {Storage} = require('@google-cloud/storage');
-var {Speech} = require('@google-cloud/speech');
+var {speech} = require('@google-cloud/speech');
 var multer = require('multer');
 var fs = require('fs');
 
@@ -29,6 +29,30 @@ app.post('/transcribe', type, function (req, res) {
         keyFilename: __dirname + '/config/scribr-215805-da49aa87d062.json'
     });
 
+    var scribeClient = new speech.SpeechClient({
+        keyFilename: __dirname + '/config/Scribr-5d71f1093107.json'
+    })
+
+    const gcsUri = `gs://${bucketName}/audio.opus`;
+    const encoding = 'OGG_OPUS';
+    const sampleRateHertz = 16000;
+    const languageCode = 'en-US';
+
+    const config = {
+        encoding: encoding,
+        sampleRateHertz: sampleRateHertz,
+        languageCode: languageCode,
+    };
+  
+    const audio = {
+        uri: gcsUri,
+    };
+  
+    const request = {
+        config: config,
+        audio: audio,
+    };
+
     console.log(req.file);
 
     fs.writeFileSync('audio.opus', req.file);
@@ -36,7 +60,7 @@ app.post('/transcribe', type, function (req, res) {
     storage
         .bucket(bucketName)
         .upload(__dirname + '/audio.opus')
-        .then(() => {
+        .then(() => 
             console.log(`audio.opus uploaded to ${bucketName}.`);
             fs.unlink(__dirname + '/audio.opus', function(err) {
                 if(err && err.code == 'ENOENT') {
@@ -49,6 +73,25 @@ app.post('/transcribe', type, function (req, res) {
                     console.info(`removed`);
                 }
             });
+
+            scribeClient
+                .longRunningRecognize(request)
+                .then(data => {
+                    const operation = data[0];
+                    // Get a Promise representation of the final result of the job
+                    return operation.promise();
+                })
+                .then(data => {
+                    const response = data[0];
+                    const transcription = response.results
+                        .map(result => result.alternatives[0].transcript)
+                        .join('\n');
+                    console.log(`Transcription: ${transcription}`);
+                })
+                .catch(err => {
+                    console.error('ERROR:', err);
+                });
+
             res.send('');
         })
         .catch(err => {
