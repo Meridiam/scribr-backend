@@ -35,14 +35,14 @@ app.post('/transcribe', type, function (req, res) {
     })
 
     ffmpeg(`./${req.file.filename}`)
-    .audioBitrate(16000)
+    .audioBitrate(48000)
     .format('s16le')
     .audioCodec('pcm_s16le')
     .output('output.raw')
     .on('end', () => {
         const gcsUri = `gs://${bucketName}/output.raw`;
         const encoding = 'LINEAR16';
-        const sampleRateHertz = 16000;
+        const sampleRateHertz = 48000;
         const languageCode = 'en-US';
     
         const config = {
