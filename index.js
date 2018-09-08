@@ -5,6 +5,7 @@ var speech = require('@google-cloud/speech');
 var multer = require('multer');
 var fs = require('fs');
 var ffmpeg = require('fluent-ffmpeg');
+var linear16 = require('linear16');
 
 var mongoose = require('mongoose');
 var db_url = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017";
@@ -34,13 +35,8 @@ app.post('/transcribe', type, function (req, res) {
         keyFilename: __dirname + '/config/Scribr-5d71f1093107.json'
     })
 
-    ffmpeg(`./${req.file.filename}`)
-    .inputFormat('ogg')
-    .output('output.raw')
-    .audioBitrate(48000)
-    .format('s16le')
-    .audioCodec('pcm_s16le')
-    .on('end', () => {
+    linear16(`./${req.file.filename}`, './output.raw')
+    .then((outpath) => {
         const gcsUri = `gs://${bucketName}/output.raw`;
         const encoding = 'LINEAR16';
         const sampleRateHertz = 48000;
@@ -67,7 +63,7 @@ app.post('/transcribe', type, function (req, res) {
     
         storage
             .bucket(bucketName)
-            .upload(`./output.raw`)
+            .upload(outpath)
             .then(() => {
                 console.log(`output.raw uploaded to ${bucketName}.`);
                 fs.unlink(`./${req.file.filename}`, function(err) {
@@ -82,7 +78,7 @@ app.post('/transcribe', type, function (req, res) {
                     }
                 });
     
-                fs.unlink(`./output.raw`, function(err) {
+                fs.unlink(outpath, function(err) {
                     if(err && err.code == 'ENOENT') {
                         // file doens't exist
                         console.info("File doesn't exist, won't remove it.");
@@ -118,7 +114,6 @@ app.post('/transcribe', type, function (req, res) {
                 res.send('');
             });
     })
-    .run();
 });
 
 app.get('/updateroster', function (req, res) {
