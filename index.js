@@ -35,7 +35,6 @@ app.post('/transcribe', type, function (req, res) {
     })
 
     ffmpeg(`./${req.file.filename}`)
-    .inputFormat('opus')
     .audioBitrate(16000)
     .format('s16le')
     .audioCodec('pcm_s16le')
