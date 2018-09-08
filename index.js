@@ -35,7 +35,7 @@ app.post('/transcribe', function (req, res) {
         .bucket(bucketName)
         .upload(__dirname + '/audio.opus')
         .then(() => {
-            console.log(`${filename} uploaded to ${bucketName}.`);
+            console.log(`audio.opus uploaded to ${bucketName}.`);
             fs.unlink(__dirname + '/audio.opus', function(err) {
                 if(err && err.code == 'ENOENT') {
                     // file doens't exist
