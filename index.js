@@ -24,14 +24,14 @@ var upload = multer({dest: __dirname + '/'});
 var type = upload.single('audio');
 var bucketName = 'scribr-215805.appspot.com';
 
-app.post('/transcribe', function (req, res) {
+app.post('/transcribe', type, function (req, res) {
     var storage = new Storage({
         keyFilename: __dirname + '/config/scribr-215805-da49aa87d062.json'
     });
 
-    console.log(req.read());
+    console.log(req.file);
 
-    fs.writeFileSync('audio.opus', Buffer.from(new Uint8Array(req.read())));
+    //fs.writeFileSync('audio.opus', req.file);
 
     storage
         .bucket(bucketName)
