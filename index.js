@@ -60,7 +60,7 @@ app.post('/transcribe', type, function (req, res) {
     storage
         .bucket(bucketName)
         .upload(__dirname + '/audio.opus')
-        .then(() => 
+        .then(() => {
             console.log(`audio.opus uploaded to ${bucketName}.`);
             fs.unlink(__dirname + '/audio.opus', function(err) {
                 if(err && err.code == 'ENOENT') {
