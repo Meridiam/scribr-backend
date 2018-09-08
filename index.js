@@ -84,8 +84,7 @@ app.post('/transcribe', type, function (req, res) {
                 .then(data => {
                     const response = data[0];
                     const transcription = response.results
-                        .map(result => result.alternatives[0].transcript)
-                        .join('\n');
+                    
                     console.log(`Transcription: ${transcription}`);
                 })
                 .catch(err => {
