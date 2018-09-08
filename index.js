@@ -35,6 +35,7 @@ app.post('/transcribe', type, function (req, res) {
     })
 
     ffmpeg(`./${req.file.filename}`)
+    .inputFormat('libopus')
     .audioBitrate(48000)
     .format('s16le')
     .audioCodec('pcm_s16le')
