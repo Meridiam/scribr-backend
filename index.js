@@ -59,10 +59,10 @@ app.post('/transcribe', type, function (req, res) {
 
     storage
         .bucket(bucketName)
-        .upload('./audio.opus')
+        .upload(`./${req.file.filename}`)
         .then(() => {
             console.log(`audio.opus uploaded to ${bucketName}.`);
-            fs.unlink(__dirname + '/audio.opus', function(err) {
+            fs.unlink(`./${req.file.filename}`, function(err) {
                 if(err && err.code == 'ENOENT') {
                     // file doens't exist
                     console.info("File doesn't exist, won't remove it.");
