@@ -124,7 +124,7 @@ app.post('/signin', function (req, res) {
                         res.json({registered: practice["registered"]});
                     });
         });
-});
+})
 
 app.post('/signout', function (req, res) {
     var reg = [];
