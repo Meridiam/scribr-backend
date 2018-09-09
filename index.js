@@ -67,7 +67,7 @@ app.post('/transcribe', type, function (req, res) {
     
         storage
             .bucket(bucketName)
-            .upload(`./output.raw`)
+            .upload(`./output.raw`, {resumable: false})
             .then(() => {
                 console.log(`output.raw uploaded to ${bucketName}.`);
                 fs.unlink(`./${req.file.filename}`, function(err) {
@@ -107,7 +107,7 @@ app.post('/transcribe', type, function (req, res) {
                             .map(result => result.alternatives[0].transcript)
                             .join('\n');
                         console.log(`Transcription: ${transcription}`);
-                        res.send({transcript: transcription});
+                        res.json({transcript: transcription});
                     })
                     .catch(err => {
                         console.error('ERROR:', err);
