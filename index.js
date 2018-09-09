@@ -19,8 +19,6 @@ var cors = require('cors');
 
 var app = express();
 
-var OpenPractice = require('./models/OpenPractice');
-
 app.use(cors({credentials: true, origin: true}));
 
 app.use(bodyParser.json());
