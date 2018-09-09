@@ -107,12 +107,12 @@ app.post('/transcribe', type, function (req, res) {
                             .map(result => result.alternatives[0].transcript)
                             .join('\n');
                         console.log(`Transcription: ${transcription}`);
+                        res.send({transcript: transcription});
                     })
                     .catch(err => {
                         console.error('ERROR:', err);
+                        res.send({error: 'speech transcription error'});
                     });
-    
-                res.send({transcript: transcription});
             })
             .catch(err => {
                 console.error('ERROR:', err);
