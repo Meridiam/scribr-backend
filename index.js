@@ -9,6 +9,9 @@ var ffmpeg = require('fluent-ffmpeg');
 var mongoose = require('mongoose');
 var db_url = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017";
 mongoose.connect(db_url);
+//Load Models
+var Visit = require('./models/visit.js');
+var Patient = require('./models/patient.js');
 
 var bodyParser = require('body-parser');
 var cors = require('cors');
