@@ -5,10 +5,14 @@ var speech = require('@google-cloud/speech');
 var multer = require('multer');
 var fs = require('fs');
 var ffmpeg = require('fluent-ffmpeg');
+var uuidv1 = require('uuid/v1');
 
 var mongoose = require('mongoose');
 var db_url = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017";
 mongoose.connect(db_url);
+//Load Models
+var Visit = require('./models/visit.js');
+var Patient = require('./models/patient.js');
 
 var bodyParser = require('body-parser');
 var cors = require('cors');
@@ -120,6 +124,75 @@ app.post('/transcribe', type, function (req, res) {
             });
     })
     .run();
+});
+
+app.post('/new_patient', function(req, res) {
+    var ptnt = new Patient();
+    ptnt.id = uuidv1();
+    ptnt.name = req.body.name;
+    ptnt.gender = req.body.gender;
+    ptnt.dob = req.body.dob;
+    ptnt.height = req.body.height;
+    ptnt.weight = req.body.weight;
+    ptnt.allergies = req.body.allergies;
+    ptnt.history = req.body.history;
+    ptnt.medications = req.body.medications;
+
+    ptnt.save(function(err) {
+        if(err) {
+            console.log('Error in creating patient: ' + err);
+            res.status(500).send({ error: 'Error while creating patient.' });
+        } else {
+            res.status(200).send('Patient registered.');
+        }
+    });
+});
+
+app.post('/new_visit', function(req, res) {
+    var vst = new Visit();
+    vst.id = uuidv1();
+    vst.patient_id = req.body.patient_id;
+    vst.audio_file = req.body.audio_file;
+    vst.transcript = req.body.transcript;
+    vst.date = req.body.date;
+    vst.arrived_with = req.body.arrived_with;
+    vst.visit_reason = req.body.visit_reason;
+    vst.pain_loc = req.body.pain_loc;
+    vst.symptoms = req.body.symptoms;
+    vst.diagnosis = req.body.diagnosis;
+    vst.treatment_plan = req.body.treatment_plan;
+
+    vst.save(function(err) {
+        if(err) {
+            console.log('Error in creating visit: ' + err);
+            res.status(500).send({ error: 'Error while creating visit.' });
+        } else {
+            res.status(200).send('Visit registered.');
+        }
+    });
+});
+
+app.get('/get_patient/:name', function(req, res) {
+    Patient.findOne({ 'name': req.params.name }, function(err, ptnt) {
+        if(err || !ptnt) {
+            res.status(500).send({ error: 'Patient not found.', trace: err});
+        } else {
+            res.json({ id: ptnt.id, name: ptnt.name, gender: ptnt.gender, dob: ptnt.dob, height: ptnt.height, weight: ptnt.weight, allergies: ptnt.allergies, history: ptnt.history, medications: ptnt.medications });
+        }
+    });
+});
+
+app.get('/get_visits/:id', function(req, res) {
+    Visit.find({ 'id': req.params.id }, function(err, vsts) {
+        if(err) {
+            res.status(500).send({ error: 'Failed to get visits.', trace: err});
+        } else {
+            res.json({ visits: toArray(vsts).map(function(vst){ return {
+                id: vst.id, patient_id: vst.patient_id, audio_file: vst.audio_file, transcript: vst.transcript,
+                date: vst.date, arrived_with: vst.arrived_with, visit_reason: vst.visit_reason, pain_loc: vst.pain_loc,
+                symptoms: vst.symptoms, diagnosis: vst.diagnosis, treatment_plan: vst.treatment_plan }; })});
+        }
+    });
 });
 
 var port = process.env.PORT || 3000; 
