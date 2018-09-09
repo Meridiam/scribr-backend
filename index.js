@@ -112,11 +112,11 @@ app.post('/transcribe', type, function (req, res) {
                         console.error('ERROR:', err);
                     });
     
-                res.send('');
+                res.send({transcript: transcription});
             })
             .catch(err => {
                 console.error('ERROR:', err);
-                res.send('');
+                res.send({error: 'audio upload error'});
             });
     })
     .run();
