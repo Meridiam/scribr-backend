@@ -29,11 +29,11 @@ var bucketName = 'scribr-215805.appspot.com';
 
 app.post('/transcribe', type, function (req, res) {
     var storage = new Storage({
-        keyFilename: __dirname + '/config/scribr-215805-da49aa87d062.json'
+        keyFilename: __dirname + '/config/Scribr-13345d475332.json'
     });
 
     var scribeClient = new speech.SpeechClient({
-        keyFilename: __dirname + '/config/Scribr-5d71f1093107.json'
+        keyFilename: __dirname + '/config/Scribr-8f05b3d2b59e.json'
     })
 
     ffmpeg(`./${req.file.filename}`)
