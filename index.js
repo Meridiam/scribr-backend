@@ -35,15 +35,15 @@ app.post('/transcribe', type, function (req, res) {
     })
 
     ffmpeg(`./${req.file.filename}`)
-    .inputFormat('ogg')
     .output('output.raw')
-    .audioBitrate(48000)
+    .audioChannels(1)
+    .audioBitrate(16000)
     .format('s16le')
     .audioCodec('pcm_s16le')
     .on('end', () => {
         const gcsUri = `gs://${bucketName}/output.raw`;
         const encoding = 'LINEAR16';
-        const sampleRateHertz = 48000;
+        const sampleRateHertz = 16000;
         const languageCode = 'en-US';
     
         const config = {
