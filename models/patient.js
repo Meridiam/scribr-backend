@@ -1,12 +1,12 @@
 var mongoose = require('mongoose');
 
 module.exports = mongoose.model('Visit', {
-    id: Number,
+    id: String,
     name: String,
     gender: String,
-    DOB: String,
-    height: Number,
-    weight: Number,
+    dob: String,
+    height: String,
+    weight: String,
     allergies: String,
     history: String,
     medications: String
